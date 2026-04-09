@@ -60,7 +60,6 @@ class ERPNextService extends ChangeNotifier {
         );
 
         if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
           _sessionCookie = response.headers['set-cookie'];
           _isLoggedIn = true;
 

@@ -7,6 +7,10 @@ class AppConfig {
   static const String erpApiKey = '0ceab97662a582d';
   static const String erpApiSecret = '7377c26dac05cf8';
 
+  // بيانات تسجيل الدخول (اختياري)
+  static const String erpUsername = 'r87823@gmail.com';
+  static const String erpPassword = 'r2287823';
+
   // استخدام API Key بدلاً من تسجيل الدخول بالاسم وكلمة المرور
   static const bool useApiKeyAuth = true;
 

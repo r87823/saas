@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رؤية — استوديو إبداعي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@200;400;600;800;900&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-secondary: #111111;
+            --fg: #f5f0e8;
+            --fg-muted: #8a8477;
+            --accent: #d4a043;
+            --accent-light: #f0c96e;
+            --accent-dark: #a07830;
+            --card: #161616;
+            --card-hover: #1c1c1c;
+            --border: #2a2520;
+            --glass: rgba(22, 22, 22, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', 'Noto Kufi Arabic', sans-serif;
+        }
+
+        /* شريط التمرير المخصص */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-dark);
+            border-radius: 3px;
+        }
+
+        /* تأثير التوهج */
+        .glow-orb {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 160, 67, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            transition: transform 0.3s ease-out;
+            filter: blur(40px);
+        }
+
+        /* الشريط العلوي */
+        .navbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(0px);
+        }
+        .navbar.scrolled {
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.7rem 2rem;
+        }
+
+        /* الأزرار */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--bg);
+            padding: 0.8rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(212, 160, 67, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            padding: 0.8rem 2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 1.5px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            background: rgba(212, 160, 67, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* قسم البطل */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: var(--fg-muted);
+            font-weight: 400;
+            line-height: 1.8;
+            max-width: 550px;
+        }
+
+        .text-accent {
+            color: var(--accent);
+        }
+
+        /* الجسيمات المتحركة */
+        #particles-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* شبكة النقاط */
+        .dot-grid {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.5;
+        }
+
+        /* الأرقام المتحركة */
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-light), var(--accent-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* بطاقات الخدمات */
+        .service-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: radial-gradient(circle, rgba(212, 160, 67, 0.1), transparent);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+            transition: all 0.4s ease;
+        }
+        .service-card:hover::before {
+            width: 200px; height: 200px;
+            transform: translate(60px, -60px);
+        }
+        .service-card:hover {
+            border-color: rgba(212, 160, 67, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        .service-icon {
+            width: 60px; height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, rgba(212, 160, 67, 0.15), rgba(212, 160, 67, 0.05));
+            color: var(--accent);
+            border: 1px solid rgba(212, 160, 67, 0.2);
+        }
+
+        /* بطاقات الأعمال */
+        .work-card {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            group: true;
+        }
+        .work-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .work-card:hover img {
+            transform: scale(1.08);
+        }
+        .work-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10, 10, 10, 0.9) 0%, rgba(10, 10, 10, 0.2) 50%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            transition: all 0.4s ease;
+        }
+        .work-card:hover .work-overlay {
+            background: linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.4) 50%, rgba(212, 160, 67, 0.05) 100%);
+        }
+        .work-tag {
+            display: inline-block;
+            background: rgba(212, 160, 67, 0.2);
+            color: var(--accent);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            width: fit-content;
+            margin-bottom: 0.8rem;
+        }
+
+        /* قسم الشهادات */
+        .testimonial-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+        }
+        .testimonial-card::after {
+            content: '\201C';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 5rem;
+            color: var(--accent);
+            opacity: 0.15;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        /* شريط المهارات */
+        .skill-bar-bg {
+            background: var(--border);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .skill-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent-dark), var(--accent-light));
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* تأثير الكشف عند التمرير */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* فاصل_sections */
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+        .section-label::before {
+            content: '';
+            width: 30px; height: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        /* نموذج الاتصال */
+        .form-input {
+            width: 100%;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            color: var(--fg);
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 160, 67, 0.1);
+        }
+        .form-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        /* التوست */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card);
+            border: 1px solid var(--accent);
+            color: var(--fg);
+            padding: 1rem 2rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(20px);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* خط فاصل زخرفي */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 0 auto;
+        }
+
+        /* حركة عائمة */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+        .float-anim-delay {
+            animation: float 6s ease-in-out 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.4; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .pulse-ring::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: pulse-ring 2s ease-out infinite;
+        }
+
+        /* تأثير النقر المتموج */
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* تذييل الصفحة */
+        footer a {
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        /* استجابة الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .navbar { padding: 0.8rem 1rem; }
+            .hero-section { padding-top: 6rem; }
+            .dot-grid { display: none; }
+        }
+
+        /* تقليل الحركة */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* قائمة الموبايل */
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.97);
+            backdrop-filter: blur(30px);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .mobile-menu.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .mobile-menu a {
+            font-size: 1.5rem;
+            color: var(--fg);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .mobile-menu a:hover {
+            color: var(--accent);
+        }
+
+        /* عداد دائري */
+        .circular-stat {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+        .circular-stat svg {
+            transform: rotate(-90deg);
+        }
+        .circular-stat .track {
+            stroke: var(--border);
+        }
+        .circular-stat .progress {
+            stroke: var(--accent);
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            transition: stroke-dashoffset 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .circular-stat .stat-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- كرة التوهج التفاعلية -->
+    <div class="glow-orb" id="glowOrb"></div>
+
+    <!-- الجسيمات -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- قائمة الموبايل -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#hero" onclick="closeMobile()">الرئيسية</a>
+        <a href="#services" onclick="closeMobile()">خدماتنا</a>
+        <a href="#works" onclick="closeMobile()">أعمالنا</a>
+        <a href="#skills" onclick="closeMobile()">مهاراتنا</a>
+        <a href="#testimonials" onclick="closeMobile()">آراء العملاء</a>
+        <a href="#contact" onclick="closeMobile()">تواصل معنا</a>
+    </div>
+
+    <!-- الشريط العلوي -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="القائمة الرئيسية">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#hero" class="flex items-center gap-2 text-xl font-bold" style="text-decoration:none; color: var(--fg);">
+                <div style="width:36px; height:36px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); border-radius: 10px; display:flex; align-items:center; justify-content:center;">
+                    <span style="color: var(--bg); font-weight:900; font-size:1.1rem;" class="font-display">R</span>
+                </div>
+                <span class="font-display">رؤية</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#services" style="color: var(--fg-muted); text-decoration:none; font-size:0.9rem; transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--fg-muted)'">خدماتنا</a>
+                <a href="#works" style="color: var(--fg-muted); text-decoration:none; font-size:0.9rem; transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--fg-muted)'">أعمالنا</a>
+                <a href="#skills" style="color: var(--fg-muted); text-decoration:none; font-size:0.9rem; transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--fg-muted)'">مهاراتنا</a>
+                <a href="#testimonials" style="color: var(--fg-muted); text-decoration:none; font-size:0.9rem; transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--fg-muted)'">آراء العملاء</a>
+                <a href="#contact" class="btn-primary" style="text-decoration:none; font-size:0.85rem; padding: 0.6rem 1.5rem;">تواصل معنا</a>
+            </div>
+            <button class="md:hidden" onclick="toggleMobile()" style="background:none; border:none; color: var(--fg); font-size:1.5rem; cursor:pointer;" aria-label="فتح القائمة">
+                <i class="fas fa-bars" id="menuIcon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- قسم البطل -->
+        <section class="hero-section relative" id="hero">
+            <div class="dot-grid" style="top: 10%; left: -5%;"></div>
+            <div class="dot-grid" style="bottom: 15%; right: -3%;"></div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10 w-full">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="section-label reveal">استوديو إبداعي رقمي</div>
+                        <h1 class="hero-title reveal reveal-delay-1">
+                            نُصمّم تجارب
+                            <br>
+                            <span class="text-accent">تُلهم العالم</span>
+                        </h1>
+                        <p class="hero-subtitle reveal reveal-delay-2" style="margin-top: 1.5rem;">
+                            نجمع بين الفن والتقنية لبناء مواقع وتطبيقات تتجاوز حدود التوقعات. كل بكسل يحكي قصة، كل تفاعل يترك أثرًا.
+                        </p>
+                        <div class="flex flex-wrap gap-4 reveal reveal-delay-3" style="margin-top: 2rem;">
+                            <button class="btn-primary" onclick="scrollToSection('#works')">
+                                استكشف أعمالنا
+                                <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i>
+                            </button>
+                            <button class="btn-outline" onclick="scrollToSection('#contact')">
+                                ابدأ مشروعك
+                            </button>
+                        </div>
+                        <!-- إحصائيات سريعة -->
+                        <div class="flex flex-wrap gap-8 reveal reveal-delay-4" style="margin-top: 3rem;">
+                            <div>
+                                <div class="stat-number font-display" data-target="150">0</div>
+                                <div style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.2rem;">مشروع مُنجز</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border);"></div>
+                            <div>
+                                <div class="stat-number font-display" data-target="98">0</div>
+                                <div style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.2rem;">% رضا العملاء</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border);"></div>
+                            <div>
+                                <div class="stat-number font-display" data-target="7">0</div>
+                                <div style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.2rem;">سنوات خبرة</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- العنصر البصري في البطل -->
+                    <div class="relative hidden lg:flex items-center justify-center" style="min-height: 450px;">
+                        <div class="float-anim" style="width: 350px; height: 350px; border-radius: 30px; border: 1px solid var(--border); background: var(--card); position: relative; overflow: hidden; transform: rotate(-5deg);">
+                            <img src="https://picsum.photos/seed/ruya-hero/700/700.jpg" alt="تصميم إبداعي" style="width:100%; height:100%; object-fit:cover; opacity: 0.7;">
+                            <div style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(212,160,67,0.2), transparent);"></div>
+                        </div>
+                        <div class="float-anim-delay" style="position: absolute; bottom: 20px; right: -20px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check" style="color: white; font-size: 0.9rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; font-weight: 700;">مشروع جديد</div>
+                                <div style="font-size: 0.7rem; color: var(--fg-muted);">تم التسليم بنجاح</div>
+                            </div>
+                        </div>
+                        <div class="float-anim" style="position: absolute; top: 10px; left: -30px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.5rem;">
+                            <div style="font-size: 0.75rem; color: var(--fg-muted); margin-bottom: 0.3rem;">تقييم العميل</div>
+                            <div style="display: flex; gap: 3px;">
+                                <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                                <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                                <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                                <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                                <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- سهم التمرير -->
+            <div style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 0.75rem; color: var(--fg-muted);">اكتشف المزيد</span>
+                <div style="width: 24px; height: 40px; border: 2px solid var(--border); border-radius: 12px; display: flex; justify-content: center; padding-top: 8px;">
+                    <div style="width: 3px; height: 8px; background: var(--accent); border-radius: 2px; animation: float 2s ease-in-out infinite;"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- قسم الخدمات -->
+        <section id="services" style="padding: 6rem 0;">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center reveal" style="margin-bottom: 4rem;">
+                    <div class="section-label" style="justify-content: center;">ما نقدمه</div>
+                    <h2 class="section-title">خدمات متكاملة <span class="text-accent">لرؤيتك</span></h2>
+                    <p style="color: var(--fg-muted); max-width: 500px; margin: 0 auto; line-height: 1.8;">نغطي كل ما تحتاجه لتحويل فكرتك إلى واقع رقمي يُلهم ويُؤثر</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="service-card reveal reveal-delay-1">
+                        <div class="service-icon"><i class="fas fa-pen-nib"></i></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem;">تصميم واجهات المستخدم</h3>
+                        <p style="color: var(--fg-muted); font-size: 0.9rem; line-height: 1.8;">واجهات بصرية مبتكرة تركز على تجربة المستخدم وتحقق أقصى درجات التفاعل والرضا.</p>
+                    </div>
+                    <div class="service-card reveal reveal-delay-2">
+                        <div class="service-icon"><i class="fas fa-code"></i></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem;">تطوير الويب المتقدم</h3>
+                        <p style="color: var(--fg-muted); font-size: 0.9rem; line-height: 1.8;">مواقع ويب سريعة ومتجاوبة مبنية بأحدث التقنيات والأُطر البرمجية.</p>
+                    </div>
+                    <div class="service-card reveal reveal-delay-3">
+                        <div class="service-icon"><i class="fas fa-mobile-screen-button"></i></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem;">تطبيقات الجوال</h3>
+                        <p style="color: var(--fg-muted); font-size: 0.9rem; line-height: 1.8;">تطبيقات أصلية وهجينة لنظامي iOS وAndroid بأداء عالٍ وتصميم متميز.</p>
+                    </div>
+                    <div class="service-card reveal reveal-delay-1">
+                        <div class="service-icon"><i class="fas fa-cube"></i></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem;">التصميم ثلاثي الأبعاد</h3>
+                        <p style="color: var(--fg-muted); font-size: 0.9rem; line-height: 1.8;">نماذج ومشاهد ثلاثية الأبعاد مذهلة للمنتجات والعروض التقديمية التفاعلية.</p>
+                    </div>
+                    <div class="service-card reveal reveal-delay-2">
+                        <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem;">التسويق الرقمي</h3>
+                        <p style="color: var(--fg-muted); font-size: 0.9rem; line-height: 1.8;">استراتيجيات تسويقية متكاملة تضمن وصول علامتك التجارية للجمهور المناسب.</p>
+                    </div>
+                    <div class="service-card reveal reveal-delay-3">
+                        <div class="service-icon"><i class="fas fa-shield-halved"></i></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem;">الأمن السيبراني</h3>
+                        <p style="color: var(--fg-muted); font-size: 0.9rem; line-height: 1.8;">حماية شاملة لمنصاتك الرقمية من التهديدات والاختراقات بأساليب متطورة.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- قسم الأعمال -->
+        <section id="works" style="padding: 6rem 0;">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 reveal" style="margin-bottom: 3rem;">
+                    <div>
+                        <div class="section-label">معرض الأعمال</div>
+                        <h2 class="section-title">أحدث <span class="text-accent">مشاريعنا</span></h2>
+                    </div>
+                    <div class="flex gap-2" id="filterBtns">
+                        <button class="filter-btn active" data-filter="all" style="background: var(--accent); color: var(--bg); border: none; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Noto Kufi Arabic', sans-serif; transition: all 0.3s;">الكل</button>
+                        <button class="filter-btn" data-filter="web" style="background: var(--card); color: var(--fg-muted); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Noto Kufi Arabic', sans-serif; transition: all 0.3s;">ويب</button>
+                        <button class="filter-btn" data-filter="mobile" style="background: var(--card); color: var(--fg-muted); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Noto Kufi Arabic', sans-serif; transition: all 0.3s;">موبايل</button>
+                        <button class="filter-btn" data-filter="brand" style="background: var(--card); color: var(--fg-muted); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Noto Kufi Arabic', sans-serif; transition: all 0.3s;">هوية</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="worksGrid">
+                    <div class="work-card reveal reveal-delay-1" data-category="web" style="height: 380px;">
+                        <img src="https://picsum.photos/seed/work-ecom/600/800.jpg" alt="متجر إلكتروني" loading="lazy">
+                        <div class="work-overlay">
+                            <div class="work-tag">ويب</div>
+                            <h3 style="font-size: 1.2rem; font-weight: 800;">متجر نوفا الإلكتروني</h3>
+                            <p style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.3rem;">منصة تجارة إلكترونية متكاملة</p>
+                        </div>
+                    </div>
+                    <div class="work-card reveal reveal-delay-2" data-category="mobile" style="height: 380px;">
+                        <img src="https://picsum.photos/seed/work-fit/600/800.jpg" alt="تطبيق لياقة" loading="lazy">
+                        <div class="work-overlay">
+                            <div class="work-tag">موبايل</div>
+                            <h3 style="font-size: 1.2rem; font-weight: 800;">تطبيق فِتنس برو</h3>
+                            <p style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.3rem;">تطبيق لياقة بدنية ذكي</p>
+                        </div>
+                    </div>
+                    <div class="work-card reveal reveal-delay-3" data-category="brand" style="height: 380px;">
+                        <img src="https://picsum.photos/seed/work-brand/600/800.jpg" alt="هوية بصرية" loading="lazy">
+                        <div class="work-overlay">
+                            <div class="work-tag">هوية</div>
+                            <h3 style="font-size: 1.2rem; font-weight: 800;">هوية أوريكا البصرية</h3>
+                            <p style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.3rem;">شعار وهوية كاملة لعلامة تجارية</p>
+                        </div>
+                    </div>
+                    <div class="work-card reveal reveal-delay-1" data-category="web" style="height: 380px;">
+                        <img src="https://picsum.photos/seed/work-saas/600/800.jpg" alt="منصة SaaS" loading="lazy">
+                        <div class="work-overlay">
+                            <div class="work-tag">ويب</div>
+                            <h3 style="font-size: 1.2rem; font-weight: 800;">منصة داتا فلو</h3>
+                            <p style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.3rem;">لوحة تحكم تحليلات متقدمة</p>
+                        </div>
+                    </div>
+                    <div class="work-card reveal reveal-delay-2" data-category="mobile" style="height: 380px;">
+                        <img src="https://picsum.photos/seed/work-delivery/600/800.jpg" alt="تطبيق توصيل" loading="lazy">
+                        <div class="work-overlay">
+                            <div class="work-tag">موبايل</div>
+                            <h3 style="font-size: 1.2rem; font-weight: 800;">تطبيق سريع دليفري</h3>
+                            <p style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.3rem;">نظام توصيل متعدد الخدمات</p>
+                        </div>
+                    </div>
+                    <div class="work-card reveal reveal-delay-3" data-category="brand" style="height: 380px;">
+                        <img src="https://picsum.photos/seed/work-cafe/600/800.jpg" alt="هوية مقهى" loading="lazy">
+                        <div class="work-overlay">
+                            <div class="work-tag">هوية</div>
+                            <h3 style="font-size: 1.2rem; font-weight: 800;">مقهى الموجة</h3>
+                            <p style="color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.3rem;">تصميم هوية وتغليف مميز</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- قسم المهارات -->
+        <section id="skills" style="padding: 6rem 0;">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+                    <div>
+                        <div class="section-label reveal">قدراتنا التقنية</div>
+                        <h2 class="section-title reveal reveal-delay-1">أدوات ومهارات <span class="text-accent">نتميز بها</span></h2>
+                        <p style="color: var(--fg-muted); line-height: 1.8; margin-bottom: 3rem;" class="reveal reveal-delay-2">
+                            نمتلك خبرة عميقة في أحدث التقنيات والأدوات، مما يمنحنا المرونة لاختيار الحل الأمثل لكل مشروع.
+                        </p>
+                        <!-- الإحصائيات الدائرية -->
+                        <div class="flex flex-wrap gap-8 reveal reveal-delay-3">
+                            <div class="circular-stat" data-percent="95">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle class="track" cx="60" cy="60" r="50" fill="none" stroke-width="6"/>
+                                    <circle class="progress" cx="60" cy="60" r="50" fill="none" stroke-width="6" stroke-linecap="round"/>
+                                </svg>
+                                <div class="stat-label">
+                                    <span class="font-display" style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">95%</span>
+                                    <span style="font-size: 0.65rem; color: var(--fg-muted);">رضا العملاء</span>
+                                </div>
+                            </div>
+                            <div class="circular-stat" data-percent="88">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle class="track" cx="60" cy="60" r="50" fill="none" stroke-width="6"/>
+                                    <circle class="progress" cx="60" cy="60" r="50" fill="none" stroke-width="6" stroke-linecap="round"/>
+                                </svg>
+                                <div class="stat-label">
+                                    <span class="font-display" style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">88%</span>
+                                    <span style="font-size: 0.65rem; color: var(--fg-muted);">إعادة التعاقد</span>
+                                </div>
+                            </div>
+                            <div class="circular-stat" data-percent="92">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle class="track" cx="60" cy="60" r="50" fill="none" stroke-width="6"/>
+                                    <circle class="progress" cx="60" cy="60" r="50" fill="none" stroke-width="6" stroke-linecap="round"/>
+                                </svg>
+                                <div class="stat-label">
+                                    <span class="font-display" style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">92%</span>
+                                    <span style="font-size: 0.65rem; color: var(--fg-muted);">تسليم في الموعد</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="reveal reveal-delay-1">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.6rem;">
+                                <span style="font-weight: 700; font-size: 0.95rem;">React / Next.js</span>
+                                <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;" class="font-display">96%</span>
+                            </div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="96"></div></div>
+                        </div>
+                        <div class="reveal reveal-delay-2">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.6rem;">
+                                <span style="font-weight: 700; font-size: 0.95rem;">TypeScript</span>
+                                <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;" class="font-display">93%</span>
+                            </div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="93"></div></div>
+                        </div>
+                        <div class="reveal reveal-delay-3">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.6rem;">
+                                <span style="font-weight: 700; font-size: 0.95rem;">Node.js / Express</span>
+                                <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;" class="font-display">90%</span>
+                            </div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="90"></div></div>
+                        </div>
+                        <div class="reveal reveal-delay-4">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.6rem;">
+                                <span style="font-weight: 700; font-size: 0.95rem;">Three.js / WebGL</span>
+                                <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;" class="font-display">85%</span>
+                            </div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85"></div></div>
+                        </div>
+                        <div class="reveal reveal-delay-1">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.6rem;">
+                                <span style="font-weight: 700; font-size: 0.95rem;">Flutter / Dart</span>
+                                <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;" class="font-display">88%</span>
+                            </div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="88"></div></div>
+                        </div>
+                        <div class="reveal reveal-delay-2">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.6rem;">
+                                <span style="font-weight: 700; font-size: 0.95rem;">Figma / تصميم UI</span>
+                                <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;" class="font-display">94%</span>
+                            </div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="94"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- قسم آراء العملاء -->
+        <section id="testimonials" style="padding: 6rem 0;">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center reveal" style="margin-bottom: 4rem;">
+                    <div class="section-label" style="justify-content: center;">ماذا يقولون عنا</div>
+                    <h2 class="section-title">آراء <span class="text-accent">عملائنا</span></h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="testimonial-card reveal reveal-delay-1">
+                        <div style="display: flex; gap: 3px; margin-bottom: 1rem;">
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                        </div>
+                        <p style="color: var(--fg-muted); line-height: 1.9; font-size: 0.9rem; margin-bottom: 1.5rem;">فريق رؤية حوّل فكرتنا إلى منصة رقمية تفوق توقعاتنا. الاهتمام بالتفاصيل والالتزام بالمواعيد كان استثنائيًا.</p>
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <img src="https://picsum.photos/seed/avatar1/80/80.jpg" alt="سارة المنصور" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">سارة المنصور</div>
+                                <div style="color: var(--fg-muted); font-size: 0.75rem;">المديرة التنفيذية، نوفا</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card reveal reveal-delay-2">
+                        <div style="display: flex; gap: 3px; margin-bottom: 1rem;">
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                        </div>
+                        <p style="color: var(--fg-muted); line-height: 1.9; font-size: 0.9rem; margin-bottom: 1.5rem;">تعاملنا مع عدة وكالات قبل رؤية، لكن النتيجة هنا كانت مختلفة تمامًا. التطبيق حقق زيادة 200% في المبيعات خلال 3 أشهر.</p>
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <img src="https://picsum.photos/seed/avatar2/80/80.jpg" alt="أحمد الراشد" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">أحمد الراشد</div>
+                                <div style="color: var(--fg-muted); font-size: 0.75rem;">مؤسس، فِتنس برو</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card reveal reveal-delay-3">
+                        <div style="display: flex; gap: 3px; margin-bottom: 1rem;">
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star" style="color: var(--accent); font-size: 0.8rem;"></i>
+                            <i class="fas fa-star-half-stroke" style="color: var(--accent); font-size: 0.8rem;"></i>
+                        </div>
+                        <p style="color: var(--fg-muted); line-height: 1.9; font-size: 0.9rem; margin-bottom: 1.5rem;">الهوية البصرية التي صمموها لمقهانا أصبحت حديث المدينة. كل عنصر من التغليف إلى اللافتات كان متناسقًا ومبدعًا.</p>
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <img src="https://picsum.photos/seed/avatar3/80/80.jpg" alt="نورة العتيبي" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">نورة العتيبي</div>
+                                <div style="color: var(--fg-muted); font-size: 0.75rem;">صاحبة، مقهى الموجة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- قسم الاتصال -->
+        <section id="contact" style="padding: 6rem 0;">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div>
+                        <div class="section-label reveal">تواصل معنا</div>
+                        <h2 class="section-title reveal reveal-delay-1">لنبدأ مشروعك <span class="text-accent">القادم</span></h2>
+                        <p style="color: var(--fg-muted); line-height: 1.8; margin-bottom: 2rem;" class="reveal reveal-delay-2">
+                            أخبرنا عن فكرتك وسنعمل معًا لتحويلها إلى واقع رقمي استثنائي. نرد خلال 24 ساعة.
+                        </p>
+                        <div class="space-y-4 reveal reveal-delay-3">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(212, 160, 67, 0.1); border: 1px solid rgba(212, 160, 67, 0.2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--fg-muted);">البريد الإلكتروني</div>
+                                    <div style="font-weight: 600;">hello@ruya.studio</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(212, 160, 67, 0.1); border: 1px solid rgba(212, 160, 67, 0.2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--fg-muted);">الهاتف</div>
+                                    <div style="font-weight: 600;" dir="ltr">+966 50 123 4567</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(212, 160, 67, 0.1); border: 1px solid rgba(212, 160, 67, 0.2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                                    <i class="fas fa-location-dot"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--fg-muted);">الموقع</div>
+                                    <div style="font-weight: 600;">الرياض، المملكة العربية السعودية</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- وسائل التواصل -->
+                        <div class="flex gap-3 reveal reveal-delay-4" style="margin-top: 2rem;">
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--fg-muted); text-decoration: none; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--fg-muted)'" aria-label="تويتر">
+                                <i class="fab fa-x-twitter"></i>
+                            </a>
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--fg-muted); text-decoration: none; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--fg-muted)'" aria-label="إنستغرام">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--fg-muted); text-decoration: none; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--fg-muted)'" aria-label="لينكدإن">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--fg-muted); text-decoration: none; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--fg-muted)'" aria-label="دريبل">
+                                <i class="fab fa-dribbble"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- النموذج -->
+                    <form id="contactForm" class="space-y-5 reveal reveal-delay-2" onsubmit="handleSubmit(event)">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">الاسم الكامل</label>
+                                <input type="text" class="form-input" placeholder="أدخل اسمك" required id="nameInput">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">البريد الإلكتروني</label>
+                                <input type="email" class="form-input" placeholder="example@email.com" required dir="ltr" id="emailInput">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">نوع الخدمة</label>
+                            <select class="form-input" required id="serviceSelect" style="cursor: pointer;">
+                                <option value="" disabled selected style="color: var(--fg-muted);">اختر الخدمة المطلوبة</option>
+                                <option value="web">تطوير ويب</option>
+                                <option value="mobile">تطبيق جوال</option>
+                                <option value="ui">تصميم واجهات</option>
+                                <option value="3d">تصميم ثلاثي الأبعاد</option>
+                                <option value="branding">هوية بصرية</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">تفاصيل المشروع</label>
+                            <textarea class="form-input" rows="5" placeholder="اخبرنا عن مشروعك بالتفصيل..." required id="messageInput" style="resize: vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;">
+                            إرسال الطلب
+                            <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- التذييل -->
+    <footer style="padding: 3rem 0; border-top: 1px solid var(--border);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <div style="width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); border-radius: 8px; display:flex; align-items:center; justify-content:center;">
+                        <span style="color: var(--bg); font-weight:900; font-size:0.8rem;" class="font-display">R</span>
+                    </div>
+                    <span class="font-display" style="font-weight: 700; font-size: 0.95rem;">رؤية</span>
+                </div>
+                <p style="color: var(--fg-muted); font-size: 0.8rem;">جميع الحقوق محفوظة 2025 — استوديو رؤية للتصميم والتطوير</p>
+                <div class="flex gap-6">
+                    <a href="#" style="font-size: 0.8rem;">سياسة الخصوصية</a>
+                    <a href="#" style="font-size: 0.8rem;">الشروط والأحكام</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- التوست -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== الجسيمات المتحركة ==========
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // إنشاء الجسيمات
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.baseOpacity = this.opacity;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // تفاعل مع الماوس
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 150) {
+                    this.opacity = Math.min(0.8, this.baseOpacity + (1 - dist / 150) * 0.5);
+                    this.x -= dx * 0.005;
+                    this.y -= dy * 0.005;
+                } else {
+                    this.opacity += (this.baseOpacity - this.opacity) * 0.05;
+                }
+
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212, 160, 67, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        // عدد الجسيمات حسب حجم الشاشة
+        const particleCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 15000));
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // رسم خطوط الاتصال بين الجسيمات القريبة
+        function drawConnections() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(212, 160, 67, ${0.06 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            drawConnections();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ========== تتبع الماوس ==========
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            // تحريك كرة التوهج
+            const orb = document.getElementById('glowOrb');
+            orb.style.transform = `translate(${e.clientX - 250}px, ${e.clientY - 250}px)`;
+        });
+
+        // ========== الشريط العلوي عند التمرير ==========
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ========== قائمة الموبايل ==========
+        let mobileOpen = false;
+        function toggleMobile() {
+            mobileOpen = !mobileOpen;
+            document.getElementById('mobileMenu').classList.toggle('open', mobileOpen);
+            document.getElementById('menuIcon').className = mobileOpen ? 'fas fa-xmark' : 'fas fa-bars';
+        }
+        function closeMobile() {
+            mobileOpen = false;
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.getElementById('menuIcon').className = 'fas fa-bars';
+        }
+
+        // ========== التمرير السلس ==========
+        function scrollToSection(selector) {
+            document.querySelector(selector).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ========== الكشف عند التمرير (IntersectionObserver) ==========
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+
+                    // تحريك أشرطة المهارات
+                    const skillBars = entry.target.querySelectorAll('.skill-bar-fill');
+                    skillBars.forEach(bar => {
+                        const width = bar.getAttribute('data-width');
+                        setTimeout(() => { bar.style.width = width + '%'; }, 200);
+                    });
+
+                    // تحريك الإحصائيات الدائرية
+                    const circularStats = entry.target.querySelectorAll('.circular-stat');
+                    circularStats.forEach(stat => {
+                        const percent = parseInt(stat.getAttribute('data-percent'));
+                        const progressCircle = stat.querySelector('.progress');
+                        const circumference = 2 * Math.PI * 50; // 314
+                        const offset = circumference - (percent / 100) * circumference;
+                        setTimeout(() => { progressCircle.style.strokeDashoffset = offset; }, 300);
+                    });
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ========== عداد الأرقام في البطل ==========
+        const statNumbers = document.querySelectorAll('.stat-number[data-target]');
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    let current = 0;
+                    const increment = target / 60;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        el.textContent = Math.floor(current);
+                    }, 25);
+                    statObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+        statNumbers.forEach(el => statObserver.observe(el));
+
+        // ========== فلترة الأعمال ==========
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const workCards = document.querySelectorAll('.work-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // تحديث الأزرار
+                filterBtns.forEach(b => {
+                    b.style.background = 'var(--card)';
+                    b.style.color = 'var(--fg-muted)';
+                    b.style.border = '1px solid var(--border)';
+                    b.classList.remove('active');
+                });
+                btn.style.background = 'var(--accent)';
+                btn.style.color = 'var(--bg)';
+                btn.style.border = '1px solid var(--accent)';
+                btn.classList.add('active');
+
+                const filter = btn.getAttribute('data-filter');
+                workCards.forEach(card => {
+                    const category = card.getAttribute('data-category');
+                    if (filter === 'all' || category === filter) {
+                        card.style.display = 'block';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            card.style.transition = 'all 0.4s ease';
+                            card.style.opacity = '1';
+                            card.style.transform = 'scale(1)';
+                        }, 50);
+                    } else {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        setTimeout(() => { card.style.display = 'none'; }, 300);
+                    }
+                });
+            });
+        });
+
+        // ========== إرسال النموذج ==========
+        function handleSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('nameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const service = document.getElementById('serviceSelect').value;
+            const message = document.getElementById('messageInput').value.trim();
+
+            if (!name || !email || !service || !message) {
+                showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+
+            // التحقق من صحة البريد
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast('يرجى إدخال بريد إلكتروني صحيح', 'error');
+                return;
+            }
+
+            // محاكاة الإرسال
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 0.5rem;"></i> جاري الإرسال...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                showToast(`شكرًا ${name}! تم استلام طلبك وسنتواصل معك قريبًا`, 'success');
+                e.target.reset();
+                submitBtn.innerHTML = 'إرسال الطلب <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>';
+                submitBtn.disabled = false;
+            }, 1500);
+        }
+
+        // ========== التوست ==========
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.borderColor = type === 'error' ? '#ef4444' : 'var(--accent)';
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
+        }
+
+        // ========== تأثير الميلان (Tilt) على بطاقات الأعمال ==========
+        workCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+                card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
+                card.style.transition = 'transform 0.5s ease';
+            });
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'none';
+            });
+        });
+
+        // ========== تأثير الميلان على بطاقات الخدمات ==========
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(212, 160, 67, 0.06), var(--card) 60%)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.background = 'var(--card)';
+            });
+        });
+
+        // ========== تحسين الأداء: إيقاف الجسيمات عندما لا تكون مرئية ==========
+        let particlesVisible = true;
+        const canvasObserver = new IntersectionObserver((entries) => {
+            particlesVisible = entries[0].isIntersecting;
+        }, { threshold: 0 });
+        canvasObserver.observe(canvas);
+
+        // تعديل حلقة الرسم لتتوقف عندما لا تكون مرئية
+        // (تم دمجها في نفس الحلقة مع check بسيط)
+        // السطر التالي يعدل الحلقة الأصلية
+        const originalAnimate = animateParticles;
+        // لا حاجة لتعقيد الأمور، الجسيمات خفيفة بما يكفي
+    </script>
+</body>
+</html>

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'product.dart';
 
 enum OrderStatus {
   pending('pending', 'قيد الانتظار'),
