@@ -76,9 +76,12 @@ flutter run
 
 ## إعداد ERPNext
 
-عدل الملف `lib/core/api/erp_next_service.dart` وأدخل:
-- رابط ERPNext الخاص بك
-- مفاتيح API (اختياري - يمكن استخدام تسجيل الدخول بالاسم وكلمة المرور)
+تم إعداد التطبيق مع:
+- **رابط السيرفر:** `https://r87823.k.frappe.cloud`
+- **API Key:** `0ceab97662a582d`
+- **API Secret:** `7377c26dac05cf8`
+
+للتبديل بين API Key وتسجيل الدخول بالاسم وكلمة المرور، عدل المتغير `_useApiKey` في الملف `lib/core/api/erp_next_service.dart`.
 
 ## التعديلات المطلوبة
 

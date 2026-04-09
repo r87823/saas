@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_config.dart';
 
 class ERPNextService extends ChangeNotifier {
-  // إعدادات الاتصال - يجب تعديلها حسب بيئة ERPNext
-  String get _baseUrl => 'https://your-erpnext.com';
-  String _apiKey = '';
-  String _apiSecret = '';
+  // إعدادات الاتصال - تأخذ من AppConfig
+  String get _baseUrl => AppConfig.erpBaseUrl;
+  String get _apiKey => AppConfig.erpApiKey;
+  String get _apiSecret => AppConfig.erpApiSecret;
+  bool get _useApiKey => AppConfig.useApiKeyAuth;
+
   String? _sessionCookie;
 
   bool _isLoading = false;
@@ -16,34 +19,59 @@ class ERPNextService extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
 
+  // الحصول على رؤوس المصادقة
+  Map<String, String> get _authHeaders {
+    if (_useApiKey) {
+      return {
+        'Authorization': 'token $_apiKey:$_apiSecret',
+      };
+    } else {
+      return {
+        if (_sessionCookie != null) 'Cookie': _sessionCookie!,
+      };
+    }
+  }
+
   // تسجيل الدخول
   Future<bool> login(String username, String password) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/api/method/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'usr': username,
-          'pwd': password,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _sessionCookie = response.headers['set-cookie'];
+      if (_useApiKey) {
+        // استخدام API Key - لا حاجة لتسجيل الدخول
         _isLoggedIn = true;
 
-        // حفظ البيانات محلياً
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('username', username);
-        await prefs.setString('session_cookie', _sessionCookie ?? '');
 
         _isLoading = false;
         notifyListeners();
         return true;
+      } else {
+        // تسجيل الدخول بالاسم وكلمة المرور
+        final response = await http.post(
+          Uri.parse('$_baseUrl/api/method/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'usr': username,
+            'pwd': password,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          _sessionCookie = response.headers['set-cookie'];
+          _isLoggedIn = true;
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('username', username);
+          await prefs.setString('session_cookie', _sessionCookie ?? '');
+
+          _isLoading = false;
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       debugPrint('Login error: $e');
@@ -57,12 +85,17 @@ class ERPNextService extends ChangeNotifier {
 
   // التحقق من الجلسة المحفوظة
   Future<void> checkSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sessionCookie = prefs.getString('session_cookie');
-    if (sessionCookie != null) {
-      _sessionCookie = sessionCookie;
+    if (_useApiKey) {
       _isLoggedIn = true;
       notifyListeners();
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      final sessionCookie = prefs.getString('session_cookie');
+      if (sessionCookie != null) {
+        _sessionCookie = sessionCookie;
+        _isLoggedIn = true;
+        notifyListeners();
+      }
     }
   }
 
@@ -84,7 +117,7 @@ class ERPNextService extends ChangeNotifier {
         Uri.parse('$_baseUrl/api/resource/Sales Order'),
         headers: {
           'Content-Type': 'application/json',
-          if (_sessionCookie != null) 'Cookie': _sessionCookie!,
+          ..._authHeaders,
         },
         body: jsonEncode(orderData),
       );
@@ -113,7 +146,7 @@ class ERPNextService extends ChangeNotifier {
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          if (_sessionCookie != null) 'Cookie': _sessionCookie!,
+          ..._authHeaders,
         },
       );
 
@@ -140,7 +173,7 @@ class ERPNextService extends ChangeNotifier {
         Uri.parse('$_baseUrl/api/resource/Sales Order/$orderId'),
         headers: {
           'Content-Type': 'application/json',
-          if (_sessionCookie != null) 'Cookie': _sessionCookie!,
+          ..._authHeaders,
         },
         body: jsonEncode({'status': status}),
       );
@@ -162,9 +195,7 @@ class ERPNextService extends ChangeNotifier {
         Uri.parse('$_baseUrl/api/method/upload_file'),
       );
 
-      request.headers.addAll({
-        if (_sessionCookie != null) 'Cookie': _sessionCookie!,
-      });
+      request.headers.addAll(_authHeaders);
 
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
@@ -191,7 +222,7 @@ class ERPNextService extends ChangeNotifier {
         Uri.parse('$_baseUrl/api/resource/Payment Entry'),
         headers: {
           'Content-Type': 'application/json',
-          if (_sessionCookie != null) 'Cookie': _sessionCookie!,
+          ..._authHeaders,
         },
         body: jsonEncode(paymentData),
       );
@@ -212,7 +243,7 @@ class ERPNextService extends ChangeNotifier {
         Uri.parse('$_baseUrl/api/resource/Item?fields=["name","item_name","item_group","standard_rate","image","custom_preparation_time"]&limit_page_length=100'),
         headers: {
           'Content-Type': 'application/json',
-          if (_sessionCookie != null) 'Cookie': _sessionCookie!,
+          ..._authHeaders,
         },
       );
 
